@@ -1,0 +1,298 @@
+-------------------------------------- Interal Clock Stuff ------------------------------------------------
+1 MHz 
+	BCSCTL1 = CALBC1_1MHZ;
+	DCOCTL  = CALDCO_1MHZ;
+
+8 MHz
+	BCSCTL1 = CALBC1_8MHZ;
+	DCOCTL  = CALDCO_8MHZ;
+
+12 MHz
+	BCSCTL1 = CALBC1_12MHZ;
+	DCOCTL  = CALDCO_12MHZ;
+
+16 MHz
+	BCSCTL1 = CALBC1_16MHZ;
+	DCOCTL  = CALDCO_16MHZ;
+
+The clock control registers are as follows
+
+DCO Control Register
+	DCOx Bits 7-5: 
+		DCO frequency select. These bits select which of the eight discrete DCO frequencies within the range
+		defined by the RSELx setting is selected.
+
+	MODx Bits 4-0: Modulator selection. 
+		These bits define how often the f DCO+1 frequency is used within a period of 32 DCOCLK
+		cycles. During the remaining clock cycles (32-MOD) the f DCO frequency is used. Not useable when
+		DCOx = 7.
+
+BCSCTL1, Basic Clock System Control Register 1
+	XT2OFF Bit 7: XT2 off 
+		This bit turns off the XT2 oscillator
+			Bit = 0: XT2 is on
+			Bit = 1: XT2 is off if it is not used for MCLK or SMCLK.
+			XTS = 1 is not supported in MSP430x20xx and MSP430G2xx devices
+
+	XTS Bit 6: LFXT1 mode select.
+		0 Low-frequency mode
+		1 High-frequency mode
+
+	DIVAx Bits 5-4: Divider for ACLK
+		00 /1
+		01 /2
+		10 /4
+		11 /8
+
+	RSELx Bits 3-0: Range select. 
+		Sixteen different frequency ranges are available. The lowest frequency range is selected by
+		setting RSELx = 0. RSEL3 is ignored when DCOR = 1.
+
+BCSCTL2, Basic Clock System Control Register 2
+	SELMx Bits 7-6: Select MCLK. 
+		These bits select the MCLK source.
+		00 DCOCLK
+		01 DCOCLK
+		10 XT2CLK when XT2 oscillator present on-chip. LFXT1CLK or VLOCLK when XT2 oscillator not present on-chip.
+		11 LFXT1CLK or VLOCLK
+
+	DIVMx Bits 5-4: Divider for MCLK
+		00 /1
+		01 /2
+		10 /4
+		11 /8
+		
+	SELS Bit 3: Select SMCLK. 
+		This bit selects the SMCLK source.
+		0 DCOCLK
+		1 XT2CLK when XT2 oscillator present. LFXT1CLK or VLOCLK when XT2 oscillator not present
+		
+	DIVSx Bits 2-1: Divider for SMCLK
+		00 /1
+		01 /2
+		10 /4
+		11 /8
+
+	DCOR Bit 0: DCO resistor select. 
+		Not available in all devices. See the device-specific data sheet.
+			0 Internal resistor
+			1 External resistor
+
+
+BCSCTL3, Basic Clock System Control Register 3
+	XT2Sx Bits 7-6: XT2 range select. 
+		These bits select the frequency range for XT2.
+			00 0.4- to 1-MHz crystal or resonator
+			01 1- to 3-MHz crystal or resonator
+			10 3- to 16-MHz crystal or resonator
+			11 Digital external 0.4- to 16-MHz clock source
+
+	LFXT1Sx Bits 5-4: Low-frequency clock select and LFXT1 range select. 
+		These bits select between LFXT1 and VLO when XTS = 0, and select the frequency range for LFXT1 when XTS = 1.
+			When XTS = 0:
+				00 32768-Hz crystal on LFXT1
+				01 Reserved
+				10 VLOCLK (Reserved in MSP430F21x1 devices)
+				11 Digital external clock source
+			When XTS = 1 (Not applicable for MSP430x20xx devices, MSP430G2xx1/2/3)
+				00 0.4- to 1-MHz crystal or resonator
+				01 1- to 3-MHz crystal or resonator
+				10 3- to 16-MHz crystal or resonator
+				11 Digital external 0.4- to 16-MHz clock source
+			LFXT1Sx definition for MSP430AFE2xx devices:
+				00 Reserved
+				01 Reserved
+				10 VLOCLK
+				11 Reserved
+
+	XCAPx Bits 3-2: Oscillator capacitor selection. 
+		These bits select the effective capacitance seen by the LFXT1 crystal when
+			XTS = 0. If XTS = 1 or if LFXT1Sx = 11 XCAPx should be 00.
+				00 ~1 pF
+				01 ~6 pF
+				10 ~10 pF
+				11 ~12.5 pF
+			XT2OF Bit 1 XT2 oscillator fault
+				0 No fault condition present
+				1 Fault condition present
+			LFXT1OF Bit 0 LFXT1 oscillator fault
+				0 No fault condition present
+				1 Fault condition present
+
+-------------------------------------- I/O ---------------------------------------------------------------
+Configuring Unused Port Pins
+	Unused I/O pins should be configured as I/O function, output direction, and left unconnected on the PC
+	board, to prevent a floating input and reduce power consumption. The value of the PxOUT bit is irrelevant,
+	since the pin is unconnected. Alternatively, the integrated pullup/pulldown resistor can be enabled by
+	setting the PxREN bit of the unused pin to prevent the floating input. See the System Resets, Interrupts,
+	and Operating Modes chapter for termination of unused pins.
+
+Input Register PxIN
+	Each bit in each PxIN register reflects the value of the input signal at the corresponding 
+	I/O pin when the pin is configured as I/O function.
+
+		Bit = 0: The input is low
+		Bit = 1: The input is high
+
+		NOTE: 	Writing to Read-Only Registers PxIN
+		Writing to these read-only registers results in increased current consumption while the write
+		attempt is active.
+
+Output Registers PxOUT
+	Each bit in each PxOUT register is the value to be output on the corresponding I/O pin when the pin is
+	configured as I/O function, output direction, and the pullup/down resistor is disabled.
+
+		Bit = 0: The output is low
+		Bit = 1: The output is high
+
+	If the pin's pullup/pulldown resistor is enabled, the corresponding bit in the PxOUT register selects pullup
+	or pulldown.
+
+		Bit = 0: The pin is pulled down
+		Bit = 1: The pin is pulled up
+
+Direction Registers PxDIR
+	Each bit in each PxDIR register selects the direction of the corresponding I/O pin, regardless of the
+	selected function for the pin. PxDIR bits for I/O pins that are selected for other functions must be set as
+	required by the other function.
+	
+		Bit = 0: The port pin is switched to input direction
+		Bit = 1: The port pin is switched to output direction
+		
+Pullup/Pulldown Resistor Enable Registers PxREN
+	Each bit in each PxREN register enables or disables the pullup/pulldown resistor of the corresponding I/O
+	pin. The corresponding bit in the PxOUT register selects if the pin is pulled up or pulled down.
+	
+		Bit = 0: Pullup/pulldown resistor disabled
+		Bit = 1: Pullup/pulldown resistor enabled
+
+Function Select Registers PxSEL and PxSEL2
+	Port pins are often multiplexed with other peripheral module functions. See the device-specific data sheet
+	to determine pin functions. Each PxSEL and PxSEL2 bit is used to select the pin function - I/O port or
+	peripheral module function.
+				
+			Table 8-1. PxSEL and PxSEL2
+			----------------------------
+			PxSEL2 	PxSEL 	Pin Function
+			0 		0 		I/O function is selected.
+			0 		1 		Primary peripheral module function is selected.
+			1 		0 		Reserved. See device-specific data sheet.
+			1 		1 		Secondary peripheral module function is selected.
+
+	Setting PxSELx = 1 does not automatically set the pin direction. Other peripheral module functions may
+	require the PxDIRx bits to be configured according to the direction needed for the module function. See
+	the pin schematics in the device-specific data sheet.
+	NOTE: Setting PxREN = 1 When PxSEL = 1
+	On some I/O ports on the MSP430F261x and MSP430F2416/7/8/9, enabling the
+	pullup/pulldown resistor (PxREN = 1) while the module function is selected (PxSEL = 1) does
+	not disable the logic output driver. This combination is not recommended and may result in
+	unwanted current flow through the internal resistor. See the device-specific data sheet pin
+	schematics for more information.
+	
+	NOTE: P1 and P2 Interrupts Are Disabled When PxSEL = 1
+	When any P1SELx or P2SELx bit is set, the corresponding pin's interrupt function is
+	disabled. Therefore, signals on these pins will not generate P1 or P2 interrupts, regardless of
+	the state of the corresponding P1IE or P2IE bit.
+
+	When a port pin is selected as an input to a peripheral, the input signal to the peripheral is a latched
+	representation of the signal at the device pin. While PxSELx = 1, the internal input signal follows the signal
+	at the pin. However, if the PxSELx = 0, the input to the peripheral maintains the value of the input signal at
+	the device pin before the PxSELx bit was reset.
+
+P1 and P2 Interrupts
+
+	Each pin in ports P1 and P2 have interrupt capability, configured with the PxIFG, PxIE, and PxIES
+	registers. All P1 pins source a single interrupt vector, and all P2 pins source a different single interrupt
+	vector. The PxIFG register can be tested to determine the source of a P1 or P2 interrupt.
+	
+Interrupt Flag Registers P1IFG, P2IFG
+	Each PxIFGx bit is the interrupt flag for its corresponding I/O pin and is set when the selected input signal
+	edge occurs at the pin. All PxIFGx interrupt flags request an interrupt when their corresponding PxIE bit
+	and the GIE bit are set. Each PxIFG flag must be reset with software. Software can also set each PxIFG
+	flag, providing a way to generate a software initiated interrupt.
+		
+		Bit = 0: No interrupt is pending
+		Bit = 1: An interrupt is pending
+	
+	Only transitions, not static levels, cause interrupts. If any PxIFGx flag becomes set during a Px interrupt
+	service routine, or is set after the RETI instruction of a Px interrupt service routine is executed, the set
+	PxIFGx flag generates another interrupt. This ensures that each transition is acknowledged.
+	
+	NOTE: PxIFG Flags When Changing PxOUT or PxDIR
+		Writing to P1OUT, P1DIR, P2OUT, or P2DIR can result in setting the corresponding P1IFG
+		or P2IFG flags.
+		
+Interrupt Edge Select Registers P1IES, P2IES
+	Each PxIES bit selects the interrupt edge for the corresponding I/O pin.
+		Bit = 0: The PxIFGx flag is set with a low-to-high transition
+		Bit = 1: The PxIFGx flag is set with a high-to-low transition
+	
+	NOTE: Writing to PxIESx
+		Writing to P1IES, or P2IES can result in setting the corresponding interrupt flags.
+							PxIESx 		PxINx	 	PxIFGx
+							0 -> 1 		0 			May be set
+							0 -> 1 		1 			Unchanged
+							1 -> 0 		0 			Unchanged
+							1 -> 0 		1 			May be set
+							
+Interrupt Enable P1IE, P2IE
+	Each PxIE bit enables the associated PxIFG interrupt flag.
+		Bit = 0: The interrupt is disabled.
+		Bit = 1: The interrupt is enabled		
+		
+----------------------------------------------------- WATCHDOG ----------------------------------------------------------
+Didn't find the stuff in the PDF to be terribly useful or descriptive
+went to this url via google searching https://msuraj.wordpress.com/tag/msp430-watchdog/
+
+basics
+	The watchdog timer has a 16 bit timer which counts from 0x00 to 0xffff (65535).
+	When it hits the max value of oxffff the watchdog resets the controller.
+	Our job is to prevent this from happening and we’ve to keep resetting the timer.
+	If the code hangs then the timer is not reset and the watchdog timer overflows and resets the timer.
+	
+The watchdog can be configured by using the WDTCTL register.
+	The Upper 8 bits of the WDTCTL has to be written with 0x5A or 0x69 if you are reading the values.
+	This is the password protect feature of the watchdog. 
+	A failure to write this or writing anything to this nibble will cause a access violation and reset the controller.
+	The lower 8 bits are the control bits and are given as follows.
+	
+The Bit definitions are as follows:
+	WDTHOLD 	=> 	disables the watchdog timer when the bit is 1.
+	WDTNMIES 	=>	selects the triggering edge for the non maskable interrupt on RST/NMI pin. 
+					0 indicates a rising edge and a 1 represents a falling edge.
+	WDTNMI  	=>	enables the nmi function on the RST/NMI pin.
+	WDTTMSEL 	=>	selects the timer mode for the watchdog when the bit is 1.
+	WDTCNTCL 	=> 	watchdog counter clear resets WDT counter.When the bit is set the counter is reset and the bit is reset immediately.
+	WDTSSEL 	=> 	selects the source for the watchdog timer. 0 selects the SMCLK and 1 selects the ACLK.
+	WDTISx 		=> 	The division factor for the clock source.
+				00 => clk source / 32768
+				01 => clk source /8192
+				10 => clk source /512
+				11 => clk source / 64
+				
+There are two other registers which are used with the watchdog.
+IE1 and IFG1.These have the interrupt enable bits and the interrupt flags for the corresponding sources.
+
+In the msp430g2553.h header file I got these handy things as well
+/* WDT-interval times [1ms] coded with Bits 0-2 */
+/* WDT is clocked by fSMCLK (assumed 1MHz) */
+#define WDT_MDLY_32         (WDTPW+WDTTMSEL+WDTCNTCL)                         /* 32ms interval (default) */
+#define WDT_MDLY_8          (WDTPW+WDTTMSEL+WDTCNTCL+WDTIS0)                  /* 8ms     " */
+#define WDT_MDLY_0_5        (WDTPW+WDTTMSEL+WDTCNTCL+WDTIS1)                  /* 0.5ms   " */
+#define WDT_MDLY_0_064      (WDTPW+WDTTMSEL+WDTCNTCL+WDTIS1+WDTIS0)           /* 0.064ms " */
+/* WDT is clocked by fACLK (assumed 32KHz) */
+#define WDT_ADLY_1000       (WDTPW+WDTTMSEL+WDTCNTCL+WDTSSEL)                 /* 1000ms  " */
+#define WDT_ADLY_250        (WDTPW+WDTTMSEL+WDTCNTCL+WDTSSEL+WDTIS0)          /* 250ms   " */
+#define WDT_ADLY_16         (WDTPW+WDTTMSEL+WDTCNTCL+WDTSSEL+WDTIS1)          /* 16ms    " */
+#define WDT_ADLY_1_9        (WDTPW+WDTTMSEL+WDTCNTCL+WDTSSEL+WDTIS1+WDTIS0)   /* 1.9ms   " */
+/* Watchdog mode -> reset after expired time */
+/* WDT is clocked by fSMCLK (assumed 1MHz) */
+#define WDT_MRST_32         (WDTPW+WDTCNTCL)                                  /* 32ms interval (default) */
+#define WDT_MRST_8          (WDTPW+WDTCNTCL+WDTIS0)                           /* 8ms     " */
+#define WDT_MRST_0_5        (WDTPW+WDTCNTCL+WDTIS1)                           /* 0.5ms   " */
+#define WDT_MRST_0_064      (WDTPW+WDTCNTCL+WDTIS1+WDTIS0)                    /* 0.064ms " */
+/* WDT is clocked by fACLK (assumed 32KHz) */
+#define WDT_ARST_1000       (WDTPW+WDTCNTCL+WDTSSEL)                          /* 1000ms  " */
+#define WDT_ARST_250        (WDTPW+WDTCNTCL+WDTSSEL+WDTIS0)                   /* 250ms   " */
+#define WDT_ARST_16         (WDTPW+WDTCNTCL+WDTSSEL+WDTIS1)                   /* 16ms    " */
+#define WDT_ARST_1_9        (WDTPW+WDTCNTCL+WDTSSEL+WDTIS1+WDTIS0)            /* 1.9ms   " */

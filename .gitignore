@@ -31,3 +31,12 @@
 # Debug files
 *.dSYM/
 *.su
+.metadata/
+RemoteSystemsTempFiles/
+*.ccsproject
+*.cproject
+*.project
+*.prefs
+*.cmd
+*.ccxml
+msp430_BIG_plotter/targetConfigs/readme.txt
