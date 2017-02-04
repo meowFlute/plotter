@@ -296,3 +296,8 @@ In the msp430g2553.h header file I got these handy things as well
 #define WDT_ARST_250        (WDTPW+WDTCNTCL+WDTSSEL+WDTIS0)                   /* 250ms   " */
 #define WDT_ARST_16         (WDTPW+WDTCNTCL+WDTSSEL+WDTIS1)                   /* 16ms    " */
 #define WDT_ARST_1_9        (WDTPW+WDTCNTCL+WDTSSEL+WDTIS1+WDTIS0)            /* 1.9ms   " */
+
+----------------------------- I2C ----------------------------------------------------
+Initialization
+	
+			
