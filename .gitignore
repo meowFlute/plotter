@@ -40,3 +40,5 @@ RemoteSystemsTempFiles/
 *.cmd
 *.ccxml
 msp430_BIG_plotter/targetConfigs/readme.txt
+msp430_BIG_plotter/.launches/
+msp430_BIG_plotter/Debug/
